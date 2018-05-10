@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller.MainActivity"
+    android:id="@+id/main_activity_layout"
+    android:background="@color/light_sage"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="center"
+        android:src="@drawable/smiley_happy"
+        android:id="@+id/main_activity_mood_img"/>
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="75dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_note_add_black"
+        android:background="null"/>
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="75dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_history_black"
+        android:background="null"/>
+
+</RelativeLayout>
