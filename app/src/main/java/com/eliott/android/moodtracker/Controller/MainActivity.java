@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.eliott.android.moodtracker.Model.Mood;
 import com.eliott.android.moodtracker.R;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView mMoodImage;
     private ImageButton mCommentButton;
     private ImageButton mHistoryButton;
+
+    private Mood[] mMood;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,5 +23,15 @@ public class MainActivity extends AppCompatActivity {
         mMoodImage = (ImageView) findViewById(R.id.main_activity_mood_img);
         mCommentButton = (ImageButton) findViewById(R.id.main_activity_comment_btn);
         mHistoryButton = (ImageButton) findViewById(R.id.main_activity_history_button);
+    }
+
+    public void initMood(){
+        mMood = new Mood[]{
+                new Mood(R.color.faded_red, R.drawable.smiley_sad),
+                new Mood(R.color.warm_grey, R.drawable.smiley_disappointed),
+                new Mood(R.color.cornflower_blue_65, R.drawable.smiley_normal),
+                new Mood(R.color.light_sage, R.drawable.smiley_happy),
+                new Mood(R.color.banana_yellow, R.drawable.smiley_super_happy),
+        };
     }
 }
