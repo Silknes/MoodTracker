@@ -32,8 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         mView = (View) findViewById(R.id.main_activity_layout);
         initMoods();
-        mMood = mMoods[mIndexOfMood];
-        mView.setBackgroundColor(mMood.getColor());
+        setMood();
 
     }
 
@@ -45,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
                 new Mood(R.color.light_sage, R.drawable.smiley_happy),
                 new Mood(R.color.banana_yellow, R.drawable.smiley_super_happy),
         };
+    }
+
+    public void setMood(){
+        mMood = mMoods[mIndexOfMood];
+        mView.setBackgroundColor(getResources().getColor(mMood.getColor()));
+        mMoodImage.setImageResource(mMood.getImage());
     }
 
     /*
