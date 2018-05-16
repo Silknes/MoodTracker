@@ -4,7 +4,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 public class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
-    private final static int DELTA_MIN = 50;
+    private final static int DELTA_MIN = 500;
     private static char mDirection;
 
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY){

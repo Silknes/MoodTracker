@@ -1,10 +1,15 @@
 package com.eliott.android.moodtracker.Controller;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -23,9 +28,13 @@ public class MainActivity extends AppCompatActivity {
 
     private int mIndexOfMood = 3;
 
-    private View mView;
+    private View mViewMainActivity;
 
     private GestureDetectorCompat mGestureDetector;
+
+    private Context mContext = this;
+
+    private String PREF_KEY_COMMENT = "PREF_KEY_COMMENT";
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -34,19 +43,20 @@ public class MainActivity extends AppCompatActivity {
         if(newGestureDetector == 'T'){
             if(mIndexOfMood < 4){
                 mIndexOfMood++;
-                //setMood();
+                setMood();
                 Toast.makeText(this,"Mouvement vers le haut", Toast.LENGTH_LONG).show();
             }
         }
         if(newGestureDetector == 'B'){
             if(mIndexOfMood > 0){
                 mIndexOfMood--;
-                //setMood();
+                setMood();
                 Toast.makeText(this,"Mouvement vers le bas", Toast.LENGTH_LONG).show();
             }
         }
         return super.onTouchEvent(event);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,33 +67,15 @@ public class MainActivity extends AppCompatActivity {
         mCommentButton = (ImageButton) findViewById(R.id.main_activity_comment_btn);
         mHistoryButton = (ImageButton) findViewById(R.id.main_activity_history_button);
 
-        mView = (View) findViewById(R.id.main_activity_layout);
+        mViewMainActivity = (View) findViewById(R.id.main_activity_layout);
+
+        mGestureDetector = new GestureDetectorCompat(this, new SwipeGestureDetector());
 
         initMoods();
         setMood();
+        listenerOnCommentButton();
     }
-/*
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        this.mGestureDetector.onTouchEvent(event);
-        char newGestureDetector = SwipeGestureDetector.getDirection();
-        if(newGestureDetector == 'T'){
-            if(mIndexOfMood < 4){
-                mIndexOfMood++;
-                //setMood();
-                Toast.makeText(this,"Mouvement vers le haut", Toast.LENGTH_LONG).show();
-            }
-        }
-        if(newGestureDetector == 'B'){
-            if(mIndexOfMood > 0){
-                mIndexOfMood--;
-                //setMood();
-                Toast.makeText(this,"Mouvement vers le bas", Toast.LENGTH_LONG).show();
-            }
-        }
-        return super.onTouchEvent(event);
-    }
-*/
+
     public void initMoods(){
         mMoods = new Mood[]{
                 new Mood(R.color.faded_red, R.drawable.smiley_sad),
@@ -96,7 +88,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void setMood(){
         mMood = mMoods[mIndexOfMood];
-        mView.setBackgroundColor(getResources().getColor(mMood.getColor()));
+        mViewMainActivity.setBackgroundColor(getResources().getColor(mMood.getColor()));
         mMoodImage.setImageResource(mMood.getImage());
+    }
+
+    public void listenerOnCommentButton() {
+        mCommentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+                View view = getLayoutInflater().inflate(R.layout.add_comment, null);
+                final EditText addCommentTxt = view.findViewById(R.id.add_comment_edit_comment);
+
+                builder.setView(view)
+                        .setMessage(getString(R.string.comment))
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setPositiveButton(getString(R.string.add), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString(PREF_KEY_COMMENT, addCommentTxt.getText().toString());
+                                editor.apply();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        });
     }
 }
