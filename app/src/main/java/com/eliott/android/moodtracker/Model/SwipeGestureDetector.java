@@ -24,6 +24,13 @@ public class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListene
         return true;
     }
 
+    @Override
+    public boolean onDown(MotionEvent e) {
+        mDirection = ' ';
+        return super.onDown(e);
+    }
+
+
     public static char getDirection(){
         return mDirection;
     }

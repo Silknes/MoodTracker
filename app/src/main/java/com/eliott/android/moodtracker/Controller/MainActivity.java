@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.eliott.android.moodtracker.Model.Mood;
 import com.eliott.android.moodtracker.Model.SwipeGestureDetector;
@@ -44,14 +43,12 @@ public class MainActivity extends AppCompatActivity {
             if(mIndexOfMood < 4){
                 mIndexOfMood++;
                 setMood();
-                Toast.makeText(this,"Mouvement vers le haut", Toast.LENGTH_LONG).show();
             }
         }
         if(newGestureDetector == 'B'){
             if(mIndexOfMood > 0){
                 mIndexOfMood--;
                 setMood();
-                Toast.makeText(this,"Mouvement vers le bas", Toast.LENGTH_LONG).show();
             }
         }
         return super.onTouchEvent(event);
