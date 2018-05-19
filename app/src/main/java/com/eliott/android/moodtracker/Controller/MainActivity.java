@@ -2,6 +2,7 @@ package com.eliott.android.moodtracker.Controller;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
@@ -9,23 +10,30 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.eliott.android.moodtracker.Model.Mood;
+import com.eliott.android.moodtracker.Model.MoodForHistory;
 import com.eliott.android.moodtracker.Model.SwipeGestureDetector;
 import com.eliott.android.moodtracker.R;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView mMoodImage;
     private ImageButton mCommentButton;
     private ImageButton mHistoryButton;
+    private Button mSave;
 
     private Mood[] mMoods;
     private Mood mMood;
 
     private int mIndexOfMood = 3;
+    private int mIndexOfMoodOfHistory = 0;
 
     private View mViewMainActivity;
 
@@ -33,7 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
     private Context mContext = this;
 
-    private String PREF_KEY_COMMENT = "PREF_KEY_COMMENT";
+    public final static String PREF_KEY_MOODSFORHISTORY = "PREF_KEY_MOODSFORHISTORY";
+
+    private ArrayList<MoodForHistory> mMoodsForHistory;
+    private MoodForHistory mMoodForHistory;
+    private String mComment;
+    private int mColor;
+
+    private Gson gson;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -63,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         mMoodImage = (ImageView) findViewById(R.id.main_activity_mood_img);
         mCommentButton = (ImageButton) findViewById(R.id.main_activity_comment_btn);
         mHistoryButton = (ImageButton) findViewById(R.id.main_activity_history_button);
+        mSave = (Button) findViewById(R.id.main_activity_save_btn);
 
         mViewMainActivity = (View) findViewById(R.id.main_activity_layout);
 
@@ -71,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         initMoods();
         setMood();
         listenerOnCommentButton();
+        listenerOnHistoryButton();
+        saveMood();
     }
 
     public void initMoods(){
@@ -109,14 +127,49 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(getString(R.string.add), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putString(PREF_KEY_COMMENT, addCommentTxt.getText().toString());
-                                editor.apply();
+                                mComment = addCommentTxt.getText().toString();
                             }
                         })
                         .create()
                         .show();
+            }
+        });
+    }
+
+    private void saveMood() {
+        mSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Création objet à ajouter dans le tableau
+                mMoodForHistory = new MoodForHistory();
+
+                // Affectation des paramètres de l'objet
+                mMoodForHistory.setColor(getResources().getColor(mMood.getColor()));
+                mMoodForHistory.setComment(mComment);
+
+                // Créer la liste
+                mMoodsForHistory = new ArrayList<MoodForHistory>();
+
+                // Ajouter une entrée dans la liste
+                mMoodsForHistory.add(mIndexOfMoodOfHistory, mMoodForHistory);
+
+                // Sauvegarder la liste
+                gson = new Gson();
+                String json = gson.toJson(mMoodsForHistory);
+                SharedPreferences preferences = getSharedPreferences("TEST", MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(PREF_KEY_MOODSFORHISTORY, json);
+                editor.apply();
+            }
+        });
+    }
+
+    private void listenerOnHistoryButton() {
+        mHistoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mHistoryActivity = new Intent(MainActivity.this, HistoryActivity.class);
+                startActivity(mHistoryActivity);
             }
         });
     }
