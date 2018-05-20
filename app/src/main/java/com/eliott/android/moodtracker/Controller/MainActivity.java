@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private Mood mMood;
 
     private int mIndexOfMood = 3;
-    private int mIndexOfMoodOfHistory = 0;
+    private int mNbOfMoodOfHistory;
 
     private View mViewMainActivity;
 
@@ -42,11 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext = this;
 
     public final static String PREF_KEY_MOODSFORHISTORY = "PREF_KEY_MOODSFORHISTORY";
+    public final static String PREF_KEY_NB_OF_SAVE_MOOD = "PREF_KEY_NB_OF_SAVE_MOOD";
+    public final static String PREF_KEY_FIRSTTIME_SEVEN_ITEM = "PREF_KEY_FIRSTTIME_SEVEN_ITEM";
 
     private ArrayList<MoodForHistory> mMoodsForHistory;
     private MoodForHistory mMoodForHistory;
     private String mComment;
-    private int mColor;
+    private int mFirstTimeSevenItem;
 
     private Gson gson;
 
@@ -136,40 +138,68 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void saveMood() {
-        mSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Création objet à ajouter dans le tableau
-                mMoodForHistory = new MoodForHistory();
-
-                // Affectation des paramètres de l'objet
-                mMoodForHistory.setColor(getResources().getColor(mMood.getColor()));
-                mMoodForHistory.setComment(mComment);
-
-                // Créer la liste
-                mMoodsForHistory = new ArrayList<MoodForHistory>();
-
-                // Ajouter une entrée dans la liste
-                mMoodsForHistory.add(mIndexOfMoodOfHistory, mMoodForHistory);
-
-                // Sauvegarder la liste
-                gson = new Gson();
-                String json = gson.toJson(mMoodsForHistory);
-                SharedPreferences preferences = getSharedPreferences("TEST", MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(PREF_KEY_MOODSFORHISTORY, json);
-                editor.apply();
-            }
-        });
-    }
-
     private void listenerOnHistoryButton() {
         mHistoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent mHistoryActivity = new Intent(MainActivity.this, HistoryActivity.class);
                 startActivity(mHistoryActivity);
+            }
+        });
+    }
+
+    private void saveMood() {
+        mSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMoodForHistory = new MoodForHistory();
+                mMoodForHistory.setColor(getResources().getColor(mMood.getColor()));
+                mMoodForHistory.setComment(mComment);
+                SharedPreferences preferences = getSharedPreferences("SHARED_PREFERENCES", MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt(PREF_KEY_NB_OF_SAVE_MOOD, mNbOfMoodOfHistory).apply();
+                mNbOfMoodOfHistory = preferences.getInt(PREF_KEY_NB_OF_SAVE_MOOD, 0);
+                editor.putInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, mFirstTimeSevenItem).apply();
+                if(mNbOfMoodOfHistory >= 0 && mNbOfMoodOfHistory <= 6){
+                    if(mNbOfMoodOfHistory == 0){
+                        mMoodsForHistory = new ArrayList<MoodForHistory>();
+                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
+                    }
+                    if(mNbOfMoodOfHistory >= 1 && mNbOfMoodOfHistory <= 6){
+                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
+                    }
+                    mNbOfMoodOfHistory++;
+                }
+                if(mNbOfMoodOfHistory == 7){
+                    mFirstTimeSevenItem = preferences.getInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, 0);
+                    if(mFirstTimeSevenItem == 0){
+                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
+                    }
+                    if(mFirstTimeSevenItem == 1){
+                        mMoodsForHistory.set(0, mMoodsForHistory.get(1));
+                        mMoodsForHistory.set(1, mMoodsForHistory.get(2));
+                        mMoodsForHistory.set(2, mMoodsForHistory.get(3));
+                        mMoodsForHistory.set(3, mMoodsForHistory.get(4));
+                        mMoodsForHistory.set(4, mMoodsForHistory.get(5));
+                        mMoodsForHistory.set(5, mMoodsForHistory.get(6));
+                        mMoodsForHistory.set(6, mMoodForHistory);
+                    }
+                    mFirstTimeSevenItem = 1;
+                    /*
+                    for(MoodForHistory e : mMoodsForHistory) {
+                        //mMoodForHistory = mMoodsForHistory.get(mIndexOfNewArrayList++);
+                        if(mIndexOfNewArrayList >= 0 && mIndexOfNewArrayList <= 6){
+                            mMoodsForHistory.set(mIndexOfNewArrayList, mMoodsForHistory.get(mIndexOfNewArrayList++));
+                            mIndexOfNewArrayList++;
+                        }
+                    }
+                    */
+                }
+                gson = new Gson();
+                String json = gson.toJson(mMoodsForHistory);
+                editor.putString(PREF_KEY_MOODSFORHISTORY, json).apply();
+                editor.putInt(PREF_KEY_NB_OF_SAVE_MOOD, mNbOfMoodOfHistory).apply();
+                editor.putInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, mFirstTimeSevenItem).apply();
             }
         });
     }
