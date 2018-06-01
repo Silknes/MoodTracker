@@ -6,15 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Controller.HistoryActivity">
+    tools:context=".Controller.HistoryActivity"
+    android:id="@+id/ll">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="horizontal"
         android:background="@color/light_sage"
         android:id="@+id/history_activity_mood1_layout">
 
+        <!--<LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@android:color/black"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="22"
+            android:background="@android:color/transparent"/>-->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

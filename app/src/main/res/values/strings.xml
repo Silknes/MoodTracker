@@ -3,4 +3,11 @@
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="comment">Comment</string>
+
+    <string name="yesterday">Yesterday</string>
+    <string name="x_days">%1d days ago</string>
+    <string name="x_weeks">%1d weeks ago</string>
+    <string name="x_months">%1d months ago</string>
+    <string name="x_years">%1d years ago</string>
+
 </resources>

@@ -27,8 +27,8 @@
         android:id="@+id/main_activity_comment_btn"/>
 
     <Button
-        android:layout_width="100dp"
-        android:layout_height="75dp"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         android:background="@null"

@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class MoodForHistory implements Serializable{
     private String mComment;
     private int mColor;
-    //private int mDate;
+    private long mDate;
 
     public MoodForHistory() {
         mComment = "No Comment";
@@ -28,20 +28,12 @@ public class MoodForHistory implements Serializable{
     public void setColor(int mColor) {
         this.mColor = mColor;
     }
-/*
-    public int getDate() {
+
+    public long getDate() {
         return mDate;
     }
 
-    public void setDate(int mDate) {
+    public void setDate(long mDate) {
         this.mDate = mDate;
-    }*/
-
-    @Override
-    public String toString() {
-        return "MoodForHistory{" +
-                "mComment='" + mComment + '\'' +
-                ", mColor=" + mColor +
-                '}';
     }
 }

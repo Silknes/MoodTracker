@@ -20,8 +20,11 @@ import com.eliott.android.moodtracker.Model.MoodForHistory;
 import com.eliott.android.moodtracker.Model.SwipeGestureDetector;
 import com.eliott.android.moodtracker.R;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView mMoodImage;
@@ -33,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private Mood mMood;
 
     private int mIndexOfMood = 3;
-    private int mNbOfMoodOfHistory;
 
     private View mViewMainActivity;
 
@@ -42,13 +44,17 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext = this;
 
     public final static String PREF_KEY_MOODSFORHISTORY = "PREF_KEY_MOODSFORHISTORY";
-    public final static String PREF_KEY_NB_OF_SAVE_MOOD = "PREF_KEY_NB_OF_SAVE_MOOD";
-    public final static String PREF_KEY_FIRSTTIME_SEVEN_ITEM = "PREF_KEY_FIRSTTIME_SEVEN_ITEM";
+    public final static String PREF_KEY_DATE = "PREF_KEY_DATE";
+    public final static String PREF_KEY_PREFERENCES = "PREF_KEY_PREFERENCES";
 
-    private ArrayList<MoodForHistory> mMoodsForHistory;
+    public SharedPreferences preferences;
+    public SharedPreferences.Editor editor;
+
+    private ArrayList<MoodForHistory> mHistoryMoodsList;
     private MoodForHistory mMoodForHistory;
     private String mComment;
-    private int mFirstTimeSevenItem;
+
+    private long firstUseMillisec;
 
     private Gson gson;
 
@@ -83,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
         mSave = (Button) findViewById(R.id.main_activity_save_btn);
 
         mViewMainActivity = (View) findViewById(R.id.main_activity_layout);
+
+        // Création des préférences
+        preferences = getSharedPreferences(PREF_KEY_PREFERENCES, MODE_PRIVATE);
+        editor = preferences.edit();
+
+        // Création de l'objet Gson
+        gson = new Gson();
 
         mGestureDetector = new GestureDetectorCompat(this, new SwipeGestureDetector());
 
@@ -138,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void listenerOnHistoryButton() {
+    public void listenerOnHistoryButton() {
         mHistoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,58 +161,51 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void saveMood() {
+    public void saveMood() {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Création/Récupération de la liste d'objet
+                if(preferences.contains(PREF_KEY_MOODSFORHISTORY)){
+                    String jsonList = preferences.getString(PREF_KEY_MOODSFORHISTORY, null);
+                    Type type = new TypeToken<ArrayList<MoodForHistory>>() {}.getType();
+                    mHistoryMoodsList = gson.fromJson(jsonList, type);
+                }
+
+                if (mHistoryMoodsList == null) mHistoryMoodsList = new ArrayList<MoodForHistory>();
+
+                // Gestion de la date
+                if(preferences.contains(PREF_KEY_DATE)) firstUseMillisec = preferences.getLong(PREF_KEY_DATE, System.currentTimeMillis());
+                else firstUseMillisec = System.currentTimeMillis();
+
+                long secondUseMillisec = System.currentTimeMillis();
+
+                Calendar firstUseCal = Calendar.getInstance();
+                Calendar secondUseCal = Calendar.getInstance();
+                firstUseCal.setTimeInMillis(firstUseMillisec);
+                secondUseCal.setTimeInMillis(secondUseMillisec);
+
+                // Création de l'objet et attribution de sa couleur, son commentaire et sa date
                 mMoodForHistory = new MoodForHistory();
-                mMoodForHistory.setColor(getResources().getColor(mMood.getColor()));
+                mMoodForHistory.setColor(mMood.getColor());
                 mMoodForHistory.setComment(mComment);
-                SharedPreferences preferences = getSharedPreferences("SHARED_PREFERENCES", MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putInt(PREF_KEY_NB_OF_SAVE_MOOD, mNbOfMoodOfHistory).apply();
-                mNbOfMoodOfHistory = preferences.getInt(PREF_KEY_NB_OF_SAVE_MOOD, 0);
-                editor.putInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, mFirstTimeSevenItem).apply();
-                if(mNbOfMoodOfHistory >= 0 && mNbOfMoodOfHistory <= 6){
-                    if(mNbOfMoodOfHistory == 0){
-                        mMoodsForHistory = new ArrayList<MoodForHistory>();
-                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
-                    }
-                    if(mNbOfMoodOfHistory >= 1 && mNbOfMoodOfHistory <= 6){
-                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
-                    }
-                    mNbOfMoodOfHistory++;
+                mMoodForHistory.setDate(secondUseMillisec);
+
+                boolean isUniqueDay = firstUseCal.get(Calendar.DAY_OF_YEAR) == secondUseCal.get(Calendar.DAY_OF_YEAR);
+                if(isUniqueDay == true) {
+                    if(mHistoryMoodsList.size() == 0) mHistoryMoodsList.add(0, mMoodForHistory);
+                    else mHistoryMoodsList.set(0, mMoodForHistory);
                 }
-                if(mNbOfMoodOfHistory == 7){
-                    mFirstTimeSevenItem = preferences.getInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, 0);
-                    if(mFirstTimeSevenItem == 0){
-                        mMoodsForHistory.add(mNbOfMoodOfHistory, mMoodForHistory);
-                    }
-                    if(mFirstTimeSevenItem == 1){
-                        mMoodsForHistory.set(0, mMoodsForHistory.get(1));
-                        mMoodsForHistory.set(1, mMoodsForHistory.get(2));
-                        mMoodsForHistory.set(2, mMoodsForHistory.get(3));
-                        mMoodsForHistory.set(3, mMoodsForHistory.get(4));
-                        mMoodsForHistory.set(4, mMoodsForHistory.get(5));
-                        mMoodsForHistory.set(5, mMoodsForHistory.get(6));
-                        mMoodsForHistory.set(6, mMoodForHistory);
-                    }
-                    mFirstTimeSevenItem = 1;
-                    /*
-                    for(MoodForHistory e : mMoodsForHistory) {
-                        //mMoodForHistory = mMoodsForHistory.get(mIndexOfNewArrayList++);
-                        if(mIndexOfNewArrayList >= 0 && mIndexOfNewArrayList <= 6){
-                            mMoodsForHistory.set(mIndexOfNewArrayList, mMoodsForHistory.get(mIndexOfNewArrayList++));
-                            mIndexOfNewArrayList++;
-                        }
-                    }
-                    */
+                if(isUniqueDay == false) {
+                    mHistoryMoodsList.add(0, mMoodForHistory);
+                    firstUseMillisec = System.currentTimeMillis();
                 }
-                gson = new Gson();
-                String json = gson.toJson(mMoodsForHistory);
-                editor.putString(PREF_KEY_MOODSFORHISTORY, json).apply();
-                editor.putInt(PREF_KEY_NB_OF_SAVE_MOOD, mNbOfMoodOfHistory).apply();
-                editor.putInt(PREF_KEY_FIRSTTIME_SEVEN_ITEM, mFirstTimeSevenItem).apply();
+
+                // Ajout de la liste d'objet et du tableau de date dans les préférences
+                editor.putLong(PREF_KEY_DATE, firstUseMillisec);
+                String jsonList = gson.toJson(mHistoryMoodsList);
+                editor.putString(PREF_KEY_MOODSFORHISTORY, jsonList);
+                editor.apply();
             }
         });
     }
