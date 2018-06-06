@@ -9,6 +9,7 @@
     tools:context=".Controller.HistoryActivity"
     android:id="@+id/ll">
 
+    <!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +18,7 @@
         android:background="@color/light_sage"
         android:id="@+id/history_activity_mood1_layout">
 
-        <!--<LinearLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -26,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="22"
-            android:background="@android:color/transparent"/>-->
+            android:background="@android:color/transparent"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,108 +37,6 @@
             android:textSize="20dp"
             android:id="@+id/activity_history_date1_txt"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood2_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date2_txt"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood3_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date3_txt"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood4_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date4_txt"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood5_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date5_txt"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood6_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date6_txt"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/light_sage"
-        android:id="@+id/history_activity_mood7_layout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pas encore d'humeur enregistrée"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/activity_history_date7_txt"/>
-
-    </LinearLayout>
+    </LinearLayout>-->
 
 </LinearLayout>

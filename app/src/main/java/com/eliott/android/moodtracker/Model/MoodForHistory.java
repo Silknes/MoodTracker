@@ -8,7 +8,7 @@ public class MoodForHistory implements Serializable{
     private long mDate;
 
     public MoodForHistory() {
-        mComment = "No Comment";
+        mComment = "";
         mColor = 0;
         //mDate = 0;
     }
