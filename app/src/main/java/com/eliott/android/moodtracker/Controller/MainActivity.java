@@ -4,17 +4,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.eliott.android.moodtracker.Model.Keys;
 import com.eliott.android.moodtracker.Model.Mood;
 import com.eliott.android.moodtracker.Model.MoodForHistory;
 import com.eliott.android.moodtracker.Model.SwipeGestureDetector;
@@ -27,49 +28,42 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
-    private ImageView mMoodImage;
-    private ImageButton mCommentButton;
-    private ImageButton mHistoryButton;
-    private Button mSave;
+    private ImageView mMoodImage;  // ImageView that contains the MoodImage
+    private ImageButton mCommentButton;  // ImageButton to leave a comment
+    private ImageButton mSendSmsButton; // ImageButton to send sms
+    private ImageButton mHistoryButton;  // ImageButton to start a HistoryActivity that contains the seven previous save Mood
+    private View mViewMainActivity;  // View of MainActivity use to set the backgroundcolor
 
-    private Mood[] mMoods;
-    private Mood mMood;
+    private ArrayList<MoodForHistory> mHistoryMoodsList; // ArrayList that contain all the Mood select by the user
+    private Mood[] mMoodTab;  // Contain the 5 differents Moods
+    private Mood mMood;  // Object Mood define by a color and an Image
 
-    private int mIndexOfMood = 3;
+    private int mIndexOfMood = 3;  // Variable that allows to display happy mood by default and to set an other Mood with incrementation
 
-    private View mViewMainActivity;
+    private GestureDetectorCompat mGestureDetector;  // Use to manage the swipe and to change the display mood
 
-    private GestureDetectorCompat mGestureDetector;
+    private Context mContext = this;  // Get the context of the activity
 
-    private Context mContext = this;
+    public SharedPreferences preferences;  // Create Preferences shared between activty
+    public SharedPreferences.Editor editor; // Editor use to modify the preferences
+    private Gson gson; // Object that allow to save ArrayList in the preferences as String
 
-    public final static String PREF_KEY_MOODSFORHISTORY = "PREF_KEY_MOODSFORHISTORY";
-    public final static String PREF_KEY_DATE = "PREF_KEY_DATE";
-    public final static String PREF_KEY_PREFERENCES = "PREF_KEY_PREFERENCES";
+    private String mComment; // Variable that store the comment leave by the user
+    private long firstUseMillisec; // Variable that contain the date in ms save in the preferences
 
-    public SharedPreferences preferences;
-    public SharedPreferences.Editor editor;
-
-    private ArrayList<MoodForHistory> mHistoryMoodsList;
-    private MoodForHistory mMoodForHistory;
-    private String mComment;
-
-    private long firstUseMillisec;
-
-    private Gson gson;
-
+    // Method that set the view (Image & Color) according to the direction of the gesture direction (Top or Bottom)
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         this.mGestureDetector.onTouchEvent(event);
-        char newGestureDetector = SwipeGestureDetector.getDirection();
-        if(newGestureDetector == 'T'){
+        char newGestureDetector = SwipeGestureDetector.getDirection(); // Get a caracter (T or B) according to the gesture direction
+        if(newGestureDetector == 'T'){ // Display a better mood with the incrementation of the variable mIndexOfMood
             if(mIndexOfMood < 4){
                 mIndexOfMood++;
                 setMood();
             }
         }
         if(newGestureDetector == 'B'){
-            if(mIndexOfMood > 0){
+            if(mIndexOfMood > 0){ // Display a lower mood with the decrementation of the variable mIndexOfMood
                 mIndexOfMood--;
                 setMood();
             }
@@ -83,31 +77,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mMoodImage = (ImageView) findViewById(R.id.main_activity_mood_img);
-        mCommentButton = (ImageButton) findViewById(R.id.main_activity_comment_btn);
-        mHistoryButton = (ImageButton) findViewById(R.id.main_activity_history_button);
-        mSave = (Button) findViewById(R.id.main_activity_save_btn);
+        // Connect elements of the layout (Image, ImageButton x3 and a View use to set the backgroundcolor)
+        mMoodImage = findViewById(R.id.main_activity_mood_img);
+        mCommentButton = findViewById(R.id.main_activity_comment_btn);
+        mSendSmsButton = findViewById(R.id.main_activity_sendsms_button);
+        mHistoryButton = findViewById(R.id.main_activity_history_button);
 
-        mViewMainActivity = (View) findViewById(R.id.main_activity_layout);
+        mViewMainActivity = findViewById(R.id.main_activity_layout);
 
-        // Création des préférences
-        preferences = getSharedPreferences(PREF_KEY_PREFERENCES, MODE_PRIVATE);
+        // Instanciation of the preferences and the editor
+        preferences = getSharedPreferences(Keys.PREF_KEY_PREFERENCES, MODE_PRIVATE);
         editor = preferences.edit();
 
-        // Création de l'objet Gson
+        // Instanciation of the Gson object
         gson = new Gson();
 
+        // Instanciation of the GestureDector object
         mGestureDetector = new GestureDetectorCompat(this, new SwipeGestureDetector());
 
-        initMoods();
-        setMood();
-        listenerOnCommentButton();
-        listenerOnHistoryButton();
-        saveMood();
+        // Call of the mathod include in this Activity
+        initMoods(); // Initialize a Mood tab that contain all the Mood with the Color and the Image source
+        setMood(); // Set the display view (Color and Image)
+        listenerOnCommentButton(); // Add a listener to the CommentButton
+        listenerOnHistoryButton(); // Add a listener to the HistoryButton
+        listenerOnSendSmsButton(); // Add a listener to the SendSmsButton
     }
 
-    public void initMoods(){
-        mMoods = new Mood[]{
+    public void initMoods(){ // Initialize a Mood tab that contain all the Mood with the Color and the Image source
+        mMoodTab = new Mood[]{
                 new Mood(R.color.faded_red, R.drawable.smiley_sad),
                 new Mood(R.color.warm_grey, R.drawable.smiley_disappointed),
                 new Mood(R.color.cornflower_blue_65, R.drawable.smiley_normal),
@@ -116,12 +113,18 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    public void setMood(){
-        mMood = mMoods[mIndexOfMood];
+    public void setMood(){ // Set the display view (Color and Image)
+        mMood = mMoodTab[mIndexOfMood];
         mViewMainActivity.setBackgroundColor(getResources().getColor(mMood.getColor()));
         mMoodImage.setImageResource(mMood.getImage());
     }
 
+    /*
+    Add a listener to the CommentButton
+    When the user click on the button that open an AlertDialog
+    Inflate a view to add an EditText to allow the user to leave a comment
+    Retrieves the comment in the variable mComment
+    */
     public void listenerOnCommentButton() {
         mCommentButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,6 +154,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*
+    Add a listener on the sendSmsButton
+    Ask a phone number in an alertdialog
+    Start a new Activity with intent and ask to the user which sms app he wants to use to send a sms
+    According to the Mood in the view we send a different sms
+    */
+    public void listenerOnSendSmsButton(){
+        mSendSmsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mSendSmsActivity = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", "0761256954", null));
+                if (mIndexOfMood == 4) mSendSmsActivity.putExtra("sms_body", getString(R.string.super_happy));
+                else if (mIndexOfMood == 3) mSendSmsActivity.putExtra("sms_body", getString(R.string.happy));
+                else if (mIndexOfMood == 2) mSendSmsActivity.putExtra("sms_body", getString(R.string.normal));
+                else if (mIndexOfMood == 1) mSendSmsActivity.putExtra("sms_body", getString(R.string.disappointed));
+                else if (mIndexOfMood == 0) mSendSmsActivity.putExtra("sms_body", getString(R.string.sad));
+                startActivity(mSendSmsActivity);
+            }
+        });
+    }
+
+    // Add a listener to the HistoryButton and start the History Activity
     public void listenerOnHistoryButton() {
         mHistoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,52 +186,71 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*
+    Method that oompare 2 date, the current date and th enext date
+    If tha date is different, this is a new day
+    */
+    public boolean isUniqueDay(){
+        if(preferences.contains(Keys.PREF_KEY_DATE)) firstUseMillisec = preferences.getLong(Keys.PREF_KEY_DATE, System.currentTimeMillis());
+        else firstUseMillisec = System.currentTimeMillis();
+
+        long secondUseMillisec = System.currentTimeMillis();
+
+        Calendar firstUseCal = Calendar.getInstance();
+        Calendar secondUseCal = Calendar.getInstance();
+        firstUseCal.setTimeInMillis(firstUseMillisec);
+        secondUseCal.setTimeInMillis(secondUseMillisec);
+
+        return firstUseCal.get(Calendar.DAY_OF_YEAR) == secondUseCal.get(Calendar.DAY_OF_YEAR);
+    }
+
+    /*
+    Method use to save all my data in the preferences
+    Create the ArrayList if isn't in the preferences
+    Create a MoodForHistory object that will be save in the preferences and use in the History Activity and set the Color, the Comment and the Date
+    If it's a new day we add a entry to the ArrayList
+    Else we replace the first entry
+    */
     public void saveMood() {
-        mSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Création/Récupération de la liste d'objet
-                if(preferences.contains(PREF_KEY_MOODSFORHISTORY)){
-                    String jsonList = preferences.getString(PREF_KEY_MOODSFORHISTORY, null);
-                    Type type = new TypeToken<ArrayList<MoodForHistory>>() {}.getType();
-                    mHistoryMoodsList = gson.fromJson(jsonList, type);
-                }
+        if(preferences.contains(Keys.PREF_KEY_MOODSFORHISTORY)){
+            String jsonList = preferences.getString(Keys.PREF_KEY_MOODSFORHISTORY, null);
+            Type type = new TypeToken<ArrayList<MoodForHistory>>() {}.getType();
+            mHistoryMoodsList = gson.fromJson(jsonList, type);
+        }
 
-                if (mHistoryMoodsList == null) mHistoryMoodsList = new ArrayList<MoodForHistory>();
+        if(mHistoryMoodsList == null) mHistoryMoodsList = new ArrayList<>();
 
-                // Gestion de la date
-                if(preferences.contains(PREF_KEY_DATE)) firstUseMillisec = preferences.getLong(PREF_KEY_DATE, System.currentTimeMillis());
-                else firstUseMillisec = System.currentTimeMillis();
+        MoodForHistory mMoodForHistory = new MoodForHistory();
+        mMoodForHistory.setComment(mComment);
+        mMoodForHistory.setColor(mMood.getColor());
+        mMoodForHistory.setDate(System.currentTimeMillis());
 
-                long secondUseMillisec = System.currentTimeMillis();
+        if(isUniqueDay()) {
+            if(mHistoryMoodsList.size() == 0) mHistoryMoodsList.add(0, mMoodForHistory);
+            else mHistoryMoodsList.set(0, mMoodForHistory);
+        }
+        else {
+            mHistoryMoodsList.add(0, mMoodForHistory);
+            firstUseMillisec = System.currentTimeMillis();
+        }
 
-                Calendar firstUseCal = Calendar.getInstance();
-                Calendar secondUseCal = Calendar.getInstance();
-                firstUseCal.setTimeInMillis(firstUseMillisec);
-                secondUseCal.setTimeInMillis(secondUseMillisec);
+        editor.putLong(Keys.PREF_KEY_DATE, firstUseMillisec);
+        String jsonList = gson.toJson(mHistoryMoodsList);
+        editor.putString(Keys.PREF_KEY_MOODSFORHISTORY, jsonList);
+        editor.apply();
+    }
 
-                // Création de l'objet et attribution de sa couleur, son commentaire et sa date
-                mMoodForHistory = new MoodForHistory();
-                mMoodForHistory.setColor(mMood.getColor());
-                mMoodForHistory.setComment(mComment);
-                mMoodForHistory.setDate(secondUseMillisec);
+    // Call the method saveMood to save the data when the Activity goes in Pause
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveMood();
+    }
 
-                boolean isUniqueDay = firstUseCal.get(Calendar.DAY_OF_YEAR) == secondUseCal.get(Calendar.DAY_OF_YEAR);
-                if(isUniqueDay == true) {
-                    if(mHistoryMoodsList.size() == 0) mHistoryMoodsList.add(0, mMoodForHistory);
-                    else mHistoryMoodsList.set(0, mMoodForHistory);
-                }
-                if(isUniqueDay == false) {
-                    mHistoryMoodsList.add(0, mMoodForHistory);
-                    firstUseMillisec = System.currentTimeMillis();
-                }
-
-                // Ajout de la liste d'objet et du tableau de date dans les préférences
-                editor.putLong(PREF_KEY_DATE, firstUseMillisec);
-                String jsonList = gson.toJson(mHistoryMoodsList);
-                editor.putString(PREF_KEY_MOODSFORHISTORY, jsonList);
-                editor.apply();
-            }
-        });
+    // If it's an other day we reset the variable mComment
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!isUniqueDay()) mComment = "";
     }
 }

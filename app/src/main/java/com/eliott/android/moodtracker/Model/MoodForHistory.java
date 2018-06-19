@@ -3,14 +3,14 @@ package com.eliott.android.moodtracker.Model;
 import java.io.Serializable;
 
 public class MoodForHistory implements Serializable{
-    private String mComment;
-    private int mColor;
-    private long mDate;
+    private String mComment; // Contain the comment
+    private int mColor; // Contain the color
+    private long mDate; // Contain the date
 
     public MoodForHistory() {
         mComment = "";
         mColor = 0;
-        //mDate = 0;
+        mDate = 0;
     }
 
     public String getComment() {

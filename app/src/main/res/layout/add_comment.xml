@@ -12,7 +12,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="30dp"
-        android:hint="Leave a comment"
+        android:hint="@string/leavecomment"
         android:id="@+id/add_comment_edit_comment"/>
 
 </LinearLayout>

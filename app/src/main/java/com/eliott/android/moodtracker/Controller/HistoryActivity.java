@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.eliott.android.moodtracker.Model.Keys;
 import com.eliott.android.moodtracker.Model.MoodForHistory;
 import com.eliott.android.moodtracker.R;
 import com.google.gson.Gson;
@@ -18,145 +19,178 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import static com.eliott.android.moodtracker.Controller.MainActivity.PREF_KEY_MOODSFORHISTORY;
-import static com.eliott.android.moodtracker.Controller.MainActivity.PREF_KEY_PREFERENCES;
+
+/*
+- commentaire à chaque variable d'instance et chaque méthode
+- tout mettre en anglais
+- avoir des noms de variables explicites
+- quand une partie de code n'est pas clairement compréhensible, mettre un commentaire
+ */
 
 public class HistoryActivity extends AppCompatActivity {
-    private LinearLayout mLinearLayoutActivityHistory;
-    private LinearLayout mInflatedView;
-    private LinearLayout mLinearLayoutMood;
-    private TextView mDisplaymDate;
-    private ImageButton mToastCommentButton;
+    private LinearLayout mLinearLayoutActivityHistory; // LinearLayout that contain of the HistoryActivity
+    private LinearLayout mLinearLayoutSizeFst; // First LinearLayout to set the size of the bar
+    private LinearLayout mLinearLayoutSizeScd; // Second LinearLayout to set the size of the bar
+    private TextView mDisplaymDate; // textView that contain the time between today and the day where the mood were saved
+    private ImageButton mToastCommentButton; // ImageButton that contain the image to click to show a comment
 
-    private SharedPreferences preferences;
-    private Gson gson;
+    private SharedPreferences preferences; // Create Preferences shared between activty
+    private Gson gson; // Object that allow to save ArrayList in the preferences as String
 
-    private int mNbOfMoodOfHistory;
+    private ArrayList<MoodForHistory> mHistoryMoodList; // ArrayList that contain all the Mood select by the user
 
-    private ArrayList<MoodForHistory> mMoodsForHistory;
+    private ArrayList<Integer> mColor; // ArrayList that contain all the color of all the mood
+    private ArrayList<String> mComment; // ArrayList that contain all the comment of all the mood
 
-    private ArrayList<Integer> mColor;
-    private ArrayList<String> mComment;
+    final long MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24; // The time in ms of a day
+    private int mIndex = 1; // Index to pass throw the first eight mood except the first
 
-    final long MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
-    private int INDEX = 1;
-
-    private Context mContext = this;
+    private Context mContext = this; // Get the contect of the Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        mLinearLayoutActivityHistory = (LinearLayout) findViewById(R.id.ll);
+        mLinearLayoutActivityHistory = findViewById(R.id.ll);  // Connect linearlayout of HistoryActivity
 
-        preferences = getSharedPreferences(PREF_KEY_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(Keys.PREF_KEY_PREFERENCES, MODE_PRIVATE); // Get the preferences
+        gson = new Gson(); // Create a Gson object
 
-        // Vérification de l'existence de la liste d'objet
-        if(preferences.contains(PREF_KEY_MOODSFORHISTORY)){
-            getMood();
-            int nbMood = mMoodsForHistory.size();
-            if(nbMood > 1){
-                // Vérifier combien de fois on exécute inflateLayout et inflateDefaultLayout
-                if(nbMood < 8){
-                    for(int i = nbMood; i < 8; i++) inflateDefaultLayout();
-                    for(int i = 1; i < nbMood; i++) {
-                        int mIndex = nbMood - i;
-                        inflateLayout(mIndex);
-                    }
-                }
-                if(nbMood >= 8) for(int i = 0; i < --nbMood; i++) inflateLayout(i);
-            }
-            else {
-                for(int i = 0; i < 7; i++){
-                    inflateDefaultLayout();
+        /*
+        If preferences contain the ArryaList of moodofhistory we recover it
+        If the size of the ArrayList is over 1 element we inflate the layout for the 7 next elements
+         */
+        if (preferences.contains(Keys.PREF_KEY_MOODSFORHISTORY)) {
+            getMoodList();
+
+            if(mHistoryMoodList.size() > 1) {
+                for(int i = 0; i < 7; i++) {
+                    inflateLayout();
+                    mIndex++;
                 }
             }
         }
     }
 
-        public void getMood() {
-            gson = new Gson();
-            String json = preferences.getString(PREF_KEY_MOODSFORHISTORY, null);
+    /*
+    Method that recover the ArrayList and add to the color and comment ArrayList for each moodforhistory
+    If the ArrayList is lower than 8 elements we set the last elements (that doesn't exist) to null
+     */
+    public void getMoodList() {
+        String json = preferences.getString(Keys.PREF_KEY_MOODSFORHISTORY, null);
 
-            mMoodsForHistory = null;
-            if(json != null){
-                Type type = new TypeToken<ArrayList<MoodForHistory>>() {}.getType();
-                mMoodsForHistory = gson.fromJson(json, type);
-            }
-
-            mColor = new ArrayList<Integer>();
-            mComment = new ArrayList<String>();
-            mNbOfMoodOfHistory = mMoodsForHistory.size();
-            mNbOfMoodOfHistory = mNbOfMoodOfHistory - 1;
-            for(MoodForHistory e : mMoodsForHistory){
-                mColor.add(e.getColor());
-                mComment.add(e.getComment());
-            }
+        mHistoryMoodList = null;
+        if (json != null) {
+            Type type = new TypeToken<ArrayList<MoodForHistory>>() {
+            }.getType();
+            mHistoryMoodList = gson.fromJson(json, type);
         }
 
-        public void inflateLayout(int mIndex){
-            mInflatedView = (LinearLayout) View.inflate(this, R.layout.mood_history, null);
-            mLinearLayoutMood = (LinearLayout) mInflatedView.findViewById(R.id.mood_history_linear_layout);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            mDisplaymDate = (TextView) mInflatedView.findViewById(R.id.mood_history_date_txt);
-
-            if(mMoodsForHistory.get(mIndex).getComment().equals("")){ }
-            else{
-                mToastCommentButton = (ImageButton) mInflatedView.findViewById(R.id.mood_history_comment_img_btn);
-                mToastCommentButton.setImageResource(R.drawable.ic_comment_black_48px);
-                listenerToastComment(mIndex);
-            }
-
-            setLayout(mDisplaymDate, mLinearLayoutMood, mIndex);
-            mLinearLayoutMood.setLayoutParams(params);
-            mLinearLayoutActivityHistory.addView(mInflatedView);
+        mColor = new ArrayList<>();
+        mComment = new ArrayList<>();
+        for (MoodForHistory e : mHistoryMoodList) {
+            mColor.add(e.getColor());
+            mComment.add(e.getComment());
         }
 
-        public void inflateDefaultLayout(){
-            mInflatedView = (LinearLayout) View.inflate(this, R.layout.mood_history, null);
-            mLinearLayoutMood = (LinearLayout) mInflatedView.findViewById(R.id.mood_history_linear_layout);
-            mLinearLayoutMood.setBackgroundColor(getResources().getColor(R.color.light_sage));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            mLinearLayoutMood.setLayoutParams(params);
-            mLinearLayoutActivityHistory.addView(mInflatedView);
+        if(mHistoryMoodList.size() < 8) for(int i = mHistoryMoodList.size(); i < 8; i++) mHistoryMoodList.add(null);
+    }
+
+    /*
+    Conenct all the elements in MoodHistory.xml
+    Set the params of the main LinearLayout mostly the weight
+    Set the main Linear to visible
+    Implement 3 other methods :
+    1st : set the width of the bar
+    2nd : set the text of the bar
+    3rd : set the toastmessage on the imagebutton
+    Finally inflate the view to the display view
+     */
+    public void inflateLayout() {
+        LinearLayout mInflatedView = (LinearLayout) View.inflate(this, R.layout.mood_history, null);
+        LinearLayout mLinearLayoutMood = mInflatedView.findViewById(R.id.mood_history_linear_layout);
+        mLinearLayoutSizeFst = mInflatedView.findViewById(R.id.mood_history_linear_size_first);
+        mLinearLayoutSizeScd = mInflatedView.findViewById(R.id.mood_history_frame_size_second);
+        mDisplaymDate = mInflatedView.findViewById(R.id.mood_history_date_txt);
+        mToastCommentButton = mInflatedView.findViewById(R.id.mood_history_comment_img_btn);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        mLinearLayoutMood.setLayoutParams(params);
+
+        if(mHistoryMoodList.get(mIndex) == null) mLinearLayoutMood.setVisibility(View.INVISIBLE);
+        else {
+            mLinearLayoutMood.setVisibility(View.VISIBLE);
+            setWidthHistoryBar();
+            setTextHistoryBar();
+            setImageButton();
         }
 
-        public void setLayout(TextView mDate, View mLinearLayoutMood, int mIndex){
-            long mDateToComparate = mMoodsForHistory.get(0).getDate();
-            long mNextDate = mMoodsForHistory.get(mIndex).getDate();
-            long mDelta = (mDateToComparate - mNextDate)/MILLISECONDS_PER_DAY;
-            if(mDelta == 1) mDate.setText(getString(R.string.yesterday));
-            else if(mDelta >= 2 && mDelta < 7) mDate.setText(String.format(getString(R.string.x_days), mDelta));
-            else if(mDelta >= 7 && mDelta < 30){
-                long mDeltaWeek = mDelta / 7;
-                mDate.setText(String.format(getString(R.string.x_weeks), mDeltaWeek));
-            }
-            else if(mDelta >= 30 && mDelta < 365){
-                long mDeltaMonth = mDelta / 30;
-                mDate.setText(String.format(getString(R.string.x_months), mDeltaMonth));
-            }
-            else if(mDelta >= 365){
-                long mDeltaYear = mDelta / 365;
-                mDate.setText(String.format(getString(R.string.x_years), mDeltaYear));
-            }
-            else if (mDelta == 0) mDate.setText("Delta à 0");
-            mLinearLayoutMood.setBackgroundColor(getResources().getColor(mColor.get(mIndex)));
-        }
+        mLinearLayoutActivityHistory.addView(mInflatedView);
+    }
 
-        public void listenerToastComment(int index){
-            final int mIndex = index;
+    /*
+    According to the color set params of the two layout (mostly the weight)
+     */
+    public void setWidthHistoryBar() {
+        int mColorTest = getResources().getColor(mColor.get(mIndex));
+        if (mColorTest == getResources().getColor(R.color.banana_yellow)) paramsLinearLayout(0f, 1f);
+        if (mColorTest == getResources().getColor(R.color.light_sage)) paramsLinearLayout(1f, 4f);
+        if (mColorTest == getResources().getColor(R.color.cornflower_blue_65)) paramsLinearLayout(1f, 2f);
+        if (mColorTest == getResources().getColor(R.color.warm_grey)) paramsLinearLayout(1f, 1f);
+        if (mColorTest == getResources().getColor(R.color.faded_red)) paramsLinearLayout(1f, 0.5f);
+    }
+
+    /*
+    Method that set the params of the two layout, take the weight in params
+     */
+    public void paramsLinearLayout(float mWeight1, float mWeight2){
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, mWeight1);
+        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, mWeight2);
+        mLinearLayoutSizeFst.setLayoutParams(params);
+        mLinearLayoutSizeScd.setLayoutParams(params2);
+    }
+
+    /*
+    Set the mesaage to display to the user, that show him how much time between current mood and the last seven mood
+    Then comapre the dates and display a different message if it's yesterday, less than one week, less than one month and less than one year
+    Moreover set the background color of the first linearlayout which is use to set the width of the bar
+     */
+    public void setTextHistoryBar() {
+        long mDateToComparate = mHistoryMoodList.get(0).getDate();
+        long mNextDate = mHistoryMoodList.get(mIndex).getDate();
+        long mDelta = (mDateToComparate - mNextDate) / MILLISECONDS_PER_DAY;
+
+        if (mDelta == 1) mDisplaymDate.setText(getString(R.string.yesterday));
+        else if (mDelta >= 2 && mDelta < 7)
+            mDisplaymDate.setText(String.format(getString(R.string.x_days), mDelta));
+        else if (mDelta >= 7 && mDelta < 30) {
+            long mDeltaWeek = mDelta / 7;
+            mDisplaymDate.setText(String.format(getString(R.string.x_weeks), mDeltaWeek));
+        } else if (mDelta >= 30 && mDelta < 365) {
+            long mDeltaMonth = mDelta / 30;
+            mDisplaymDate.setText(String.format(getString(R.string.x_months), mDeltaMonth));
+        } else if (mDelta >= 365) {
+            long mDeltaYear = mDelta / 365;
+            mDisplaymDate.setText(String.format(getString(R.string.x_years), mDeltaYear));
+        }
+        mLinearLayoutSizeFst.setBackgroundColor(getResources().getColor(mColor.get(mIndex)));
+    }
+
+    /*
+    If the comment of the mood is != "", we set an onClickListener on the ImageButton
+    On the click display a toast message that contain the comment
+     */
+    public void setImageButton(){
+        final int mIndexComment = mIndex;
+        if (!mHistoryMoodList.get(mIndex).getComment().equals("")) {
+            mToastCommentButton.setImageResource(R.drawable.ic_comment_black_48px);
             mToastCommentButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, mComment.get(mIndex), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mComment.get(mIndexComment), Toast.LENGTH_SHORT).show();
                 }
             });
         }
-
-        public void sizeCommentLayout(){
-            int colorCode = mMoodsForHistory.get(0).getColor();
-            int lightsageCode = getResources().getColor(R.color.light_sage);
-            if(colorCode == lightsageCode)
-        }
+    }
 }

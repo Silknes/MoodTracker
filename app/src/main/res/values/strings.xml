@@ -3,11 +3,18 @@
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="comment">Comment</string>
+    <string name="leavecomment">Leave a comment</string>
 
     <string name="yesterday">Yesterday</string>
     <string name="x_days">%1d days ago</string>
     <string name="x_weeks">%1d weeks ago</string>
     <string name="x_months">%1d months ago</string>
     <string name="x_years">%1d years ago</string>
+
+    <string name="super_happy">Today I feel super happy :D</string>
+    <string name="happy">Today I feel happy :)</string>
+    <string name="normal">Today I feel normal :|</string>
+    <string name="disappointed">Today I feel disappointed :/</string>
+    <string name="sad">Today I feel sad :(</string>
 
 </resources>

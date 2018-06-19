@@ -1,44 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mood_history_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:id="@+id/mood_history_linear_layout">
+    android:visibility="visible">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1"
-        android:id="@+id/mood_history_linear_size">
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/mood_history_linear_size_first"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="No mood saved"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:id="@+id/mood_history_date_txt"/>
+            android:orientation="horizontal"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp">
 
-        <ImageButton
+            <TextView
+                android:id="@+id/mood_history_date_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/mood_history_comment_img_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="@null" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mood_history_frame_size_second"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:background="@null"
-            android:id="@+id/mood_history_comment_img_btn"/>
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="@android:color/darker_gray"
+            android:orientation="horizontal">
 
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="0"
-        android:background="@android:color/darker_gray"
-        android:id="@+id/mood_history_frame_size">
-
-    </FrameLayout>
+        </LinearLayout>
 
 </LinearLayout>
