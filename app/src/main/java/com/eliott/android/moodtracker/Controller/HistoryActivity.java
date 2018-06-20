@@ -19,14 +19,6 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-
-/*
-- commentaire à chaque variable d'instance et chaque méthode
-- tout mettre en anglais
-- avoir des noms de variables explicites
-- quand une partie de code n'est pas clairement compréhensible, mettre un commentaire
- */
-
 public class HistoryActivity extends AppCompatActivity {
     private LinearLayout mLinearLayoutActivityHistory; // LinearLayout that contain of the HistoryActivity
     private LinearLayout mLinearLayoutSizeFst; // First LinearLayout to set the size of the bar

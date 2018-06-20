@@ -160,17 +160,38 @@ public class MainActivity extends AppCompatActivity {
     Start a new Activity with intent and ask to the user which sms app he wants to use to send a sms
     According to the Mood in the view we send a different sms
     */
-    public void listenerOnSendSmsButton(){
+    public void listenerOnSendSmsButton() {
         mSendSmsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mSendSmsActivity = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", "0761256954", null));
-                if (mIndexOfMood == 4) mSendSmsActivity.putExtra("sms_body", getString(R.string.super_happy));
-                else if (mIndexOfMood == 3) mSendSmsActivity.putExtra("sms_body", getString(R.string.happy));
-                else if (mIndexOfMood == 2) mSendSmsActivity.putExtra("sms_body", getString(R.string.normal));
-                else if (mIndexOfMood == 1) mSendSmsActivity.putExtra("sms_body", getString(R.string.disappointed));
-                else if (mIndexOfMood == 0) mSendSmsActivity.putExtra("sms_body", getString(R.string.sad));
-                startActivity(mSendSmsActivity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+                View view = getLayoutInflater().inflate(R.layout.choose_number, null);
+                final EditText chooseNumber = view.findViewById(R.id.choose_number_set_number);
+
+                builder.setView(view)
+                        .setMessage(getString(R.string.phonenumber))
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setPositiveButton(getString(R.string.select), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String mPhoneNumber = chooseNumber.getText().toString();
+                                Intent mSendSmsActivity = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", mPhoneNumber, null));
+                                if (mIndexOfMood == 4) mSendSmsActivity.putExtra("sms_body", getString(R.string.super_happy));
+                                else if (mIndexOfMood == 3) mSendSmsActivity.putExtra("sms_body", getString(R.string.happy));
+                                else if (mIndexOfMood == 2) mSendSmsActivity.putExtra("sms_body", getString(R.string.normal));
+                                else if (mIndexOfMood == 1) mSendSmsActivity.putExtra("sms_body", getString(R.string.disappointed));
+                                else if (mIndexOfMood == 0) mSendSmsActivity.putExtra("sms_body", getString(R.string.sad));
+                                startActivity(mSendSmsActivity);
+                            }
+                        })
+                        .create()
+                        .show();
             }
         });
     }

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/add_comment_popup">
+    android:id="@+id/choose_number_popup">
 
     <EditText
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="30dp"
-        android:hint="@string/choosenumber"
-        android:id="@+id/add_comment_edit_comment"/>
+        android:hint="@string/leavecomment"
+        android:id="@+id/choose_number_set_number"/>
 
 </LinearLayout>

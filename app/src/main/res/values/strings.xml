@@ -5,6 +5,10 @@
     <string name="comment">Comment</string>
     <string name="leavecomment">Leave a comment</string>
 
+    <string name="phonenumber">Phone number</string>
+    <string name="select">Select</string>
+    <string name="choosenumber">Enter a phone number</string>
+
     <string name="yesterday">Yesterday</string>
     <string name="x_days">%1d days ago</string>
     <string name="x_weeks">%1d weeks ago</string>
